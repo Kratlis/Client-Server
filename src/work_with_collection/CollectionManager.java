@@ -178,13 +178,6 @@ public class CollectionManager {
      * @see SimpleDateFormat
      */
     public void save() throws IOException {
-//        if (fileWorker != null) {
-//            File newFile = new File("saveFile" + new SimpleDateFormat("yyyy.MM.dd.hh.mm.ss").format(new Date()) + ".txt");
-//            if (newFile.createNewFile()) {
-//                new FileManager(newFile).writeToFile(new GsonBuilder().setPrettyPrinting().create().toJson(jailStack));
-//                System.out.println("Коллекция сохранена в файл " + newFile.getAbsolutePath());
-//            } else throw new FileNotFoundException();
-//        }
         try{
             fileWorker.writeToFile(new GsonBuilder().setPrettyPrinting().create().toJson(jailStack));
         } catch (FileNotFoundException e){

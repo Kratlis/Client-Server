@@ -7,8 +7,6 @@ import java.util.Scanner;
 
 public class Client {
 
-    private static int port = 2101;
-
     /*
     Выполнить команду от пользования при установке соединения
      */
@@ -27,8 +25,8 @@ public class Client {
                 return connect(Integer.parseInt(s.split(" ")[1]));
             }
             catch (NumberFormatException|ArrayIndexOutOfBoundsException e){
-                System.out.println("Подключиться по заданному порту не удалось. Подключаемся к порту "+port);
-                return connect(port);
+                System.out.println("Порт задан неверно");
+                return null;
             }
         }
         return null;
@@ -40,23 +38,19 @@ public class Client {
     private static SocketChannel connect(int i) {
         try {
             SocketAddress sa = new InetSocketAddress("localhost", i);
-            SocketChannel socketChannel = SocketChannel.open(sa);
-            return socketChannel;
+            return SocketChannel.open(sa);
         } catch (Exception e) {
-            System.out.println("не удалось установить соединение");
+            System.out.println("Не удалось установить соединение");
         }
         return null;
     }
 
     public static void main(String[] args) {
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Работа закончена.");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Работа закончена.")));
 
-        }));
-
-        try{
-            while (true) {
+        while (true) {
+            try {
                 SocketChannel channel = findConnect();
                 if (channel == null) {
                     continue;
@@ -66,11 +60,10 @@ public class Client {
                 } catch (IOException e) {
                     System.out.println("Соединение не установлено");
                 }
-
+            } catch (NoSuchElementException e) {
+                System.out.println("Работа закончена.");
+                break;
             }
-        } catch (NoSuchElementException e){
-            System.out.println("Работа закончена.");
-
         }
     }
 }

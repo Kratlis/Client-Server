@@ -1,25 +1,27 @@
 package story;
-
 import com.google.gson.Gson;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 
-public class Jail extends Creature implements Serializable {
+public class Jail extends Creature implements Serializable, Comparable<Jail> {
     private ArrayList<Policeman> squad = new ArrayList<>();
     private ArrayList<Shorty> prisoners = new ArrayList<>();
     private ArrayList<Shorty> theDead = new ArrayList<>();
     private Crane crane;
     private Stove stove;
+    private Date initDate;
     private transient int num;
-
+    
     public Jail(int x, int y, Crane crane, Stove stove) {
         super(x, y);
+        initDate = new Date();
         this.crane = crane;
         this.stove = stove;
     }
-
-
+    
+    
     public void addPoliceman(Policeman man) {
         squad.add(man);
         System.out.println("Полицейский "+man.getName()+" вбежал в каталажку");
@@ -63,21 +65,35 @@ public class Jail extends Creature implements Serializable {
         for (Policeman j : squad)
             j.isWinner(this.crane, this.stove);
     }
-
+    
     public ArrayList<Policeman> getSquad() {
         return squad;
     }
-     public ArrayList<Shorty> getPrisoners() {
+    public ArrayList<Shorty> getPrisoners() {
         return prisoners;
     }
     public ArrayList<Shorty> getTheDead(){
         return theDead;
     }
-
+    
+    public Date getInitDate() {
+        return initDate;
+    }
+    public void setInitDate(Date initDate) {
+        this.initDate = initDate;
+    }
+    
     public String toString(){
-        String description;
-
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+    
+    @Override
+    public int compareTo(Jail o) {
+        if (getName().equals(o.getName())){
+            return -1;
+        } else {
+            return getName().compareTo(o.getName());
+        }
     }
 }
