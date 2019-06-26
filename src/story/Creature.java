@@ -30,8 +30,8 @@ public abstract class Creature implements Serializable {
         ordinate = y;
     }
 
-    int getAbscissa(){return this.abscissa;}
-    int getOrdinate(){return this.ordinate;}
+    public int getAbscissa(){return this.abscissa;}
+    public int getOrdinate(){return this.ordinate;}
     void setAbscissa(int a){
         this.abscissa += a;
     }

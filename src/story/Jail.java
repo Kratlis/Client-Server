@@ -2,6 +2,7 @@ package story;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -11,14 +12,28 @@ public class Jail extends Creature implements Serializable, Comparable<Jail> {
     private ArrayList<Shorty> theDead = new ArrayList<>();
     private Crane crane;
     private Stove stove;
-    private Date initDate;
+    private LocalDateTime initDate;
     private transient int num;
     
-    public Jail(int x, int y, Crane crane, Stove stove) {
-        super(x, y);
-        initDate = new Date();
+    public Jail(int x, int y, String name, Crane crane, Stove stove) {
+        super(name, x, y);
+        initDate = LocalDateTime.now();
         this.crane = crane;
         this.stove = stove;
+    }
+    public Jail(int x, int y, Crane crane, Stove stove) {
+        super(x, y);
+        initDate = LocalDateTime.now();
+        this.crane = crane;
+        this.stove = stove;
+    }
+    public Jail(int abscissa, int ordinate, String name, LocalDateTime date) {
+        super(name, abscissa, ordinate);
+        initDate = date;
+    }
+    public Jail(int x, int y, String name, Crane crane, Stove stove, LocalDateTime dateTime) {
+        this(x, y, name, crane, stove);
+        initDate = LocalDateTime.now();
     }
     
     
@@ -76,10 +91,17 @@ public class Jail extends Creature implements Serializable, Comparable<Jail> {
         return theDead;
     }
     
-    public Date getInitDate() {
+    public Crane getCrane() {
+        return crane;
+    }
+    
+    public Stove getStove() {
+        return stove;
+    }
+    public LocalDateTime getInitDate() {
         return initDate;
     }
-    public void setInitDate(Date initDate) {
+    public void setInitDate(LocalDateTime initDate) {
         this.initDate = initDate;
     }
     

@@ -3,44 +3,40 @@ package story;
 import java.io.Serializable;
 
 public class Shorty extends Creature implements Alive, Serializable {
-
+    
     private Condition cond;
     private double energy;
-
-    Shorty(String s, int x, int y){
+    
+    public Shorty(String s, int x, int y){
         super(s, x, y);
     }
-    Shorty(String s, Condition c, int x, int y){
+    public Shorty(String s, Condition c, int x, int y){
         super(s, x, y);
         cond = c;
         switch (cond){
-        case LYING: energy = Math.random()+ 5;
+            case LYING: energy = Math.random()+ 5;
                 break;
-        case MOVING: energy = Math.random()+ 8;
+            case MOVING: energy = Math.random()+ 8;
                 break;
-        case STANDING: energy = Math.random()+ 10;
+            case STANDING: energy = Math.random()+ 10;
                 break;
         }
     }
-
-    class Angry {
-        int power;
-        public void takeBaton(Policeman p){
-            p.setArmament(false);
-        }
+    public Shorty(String s, Condition c, int x, int y, double en){
+        this(s, c, x, y);
+        energy = en;
     }
-
-
+    
     public void speak(String s) {
         System.out.println(this.getName()+" говорит: "+s);
     }
     public void walk() {
         System.out.println("Коротышка "+this.getName()+" убегает.");
     }
-    Condition getCond(){
+    public Condition getCond(){
         return cond;
     }
-    double getEnergy(){ return energy;}
+    public double getEnergy(){ return energy;}
     void setEnergy(double a){
         if (a!=0) {
             energy -= a;
@@ -90,6 +86,6 @@ public class Shorty extends Creature implements Alive, Serializable {
         cond = Condition.HIDDEN;
         System.out.println("Коротышка "+this.getName()+" спрятался под полкой.");
     }
-
-
+    
+    
 }

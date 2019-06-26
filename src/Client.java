@@ -55,11 +55,7 @@ public class Client {
                 if (channel == null) {
                     continue;
                 }
-                try {
-                    new ClientOperator(channel);
-                } catch (IOException e) {
-                    System.out.println("Соединение не установлено");
-                }
+                new ClientOperator(channel);
             } catch (NoSuchElementException e) {
                 System.out.println("Работа закончена.");
                 break;

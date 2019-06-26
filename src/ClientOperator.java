@@ -8,35 +8,22 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 
 class ClientOperator {
     private SocketChannel socketChannel;
-//    private ObjectInputStream inputStream;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private int port;
-    private String message;
-    static Selector selector;
-    ByteBuffer inBuf = ByteBuffer.allocate(1000000);
-    ByteArrayInputStream inputStream;
+    private String login;
+    private String password;
 
-    ClientOperator(SocketChannel socketChannel) throws IOException {
+    ClientOperator(SocketChannel socketChannel) {
 
         this.socketChannel = socketChannel;
-//        socketChannel.configureBlocking(false);
-//        selector = Selector.open();
-//        socketChannel.register(selector, SelectionKey.OP_READ);
-//        this.inputStream = new ObjectInputStream(Channels.newInputStream(socketChannel));
         Socket socket = socketChannel.socket();
         System.out.println("Успешное подключение");
         port = socket.getPort();
@@ -65,10 +52,32 @@ class ClientOperator {
     }
 
     private boolean work(){
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         while (true) {
             try {
-                message = getMessage();
+                String message = getMessage();
                 System.out.println(message);
+                Scanner scanner =  new Scanner(System.in);
+                if (message.equals("Введите \"enter\", чтобы подключиться к базе данных. \n" +
+                        "Если вы еще не зарегистрированы, введите \"reg\"") ||  message.equals("Введите адрес электронной почты")
+                || message.equals("Пароль был отправлен Вам на почту. Введите его.") || message.equals("Пароли не совпадают. Попробуйте ещё раз ввести пароль.")){
+                    sendObject(scanner.next());
+                    continue;
+                }
+                if (message.equals("Введите логин")){
+                    login = scanner.next();
+                    sendObject(login);
+                    continue;
+                }
+                if (message.equals("Введите пароль")){
+                    password = scanner.next();
+                    sendObject(password);
+                    continue;
+                }
                 if (message.equals("Соединение разорвано.") || message.equals("Сокет закрылся.")) {
                     downService();
                     return false;
@@ -77,6 +86,8 @@ class ClientOperator {
                     message = CommandReaderAndExecutor.readAndParseCommand();
                     if (CommandReaderAndExecutor.checkCommand(message)) {
                         try{
+                            sendObject(login);
+                            sendObject(password);
                             sendObject(message.split(" ", 2)[0]);
                             makeMessage(message);
                         } catch (IOException e) {
@@ -93,18 +104,24 @@ class ClientOperator {
             }catch (IOException e) {
                 System.out.println("Сервер недоступен для отправки");
                 break;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             }
         }
         return false;
     }
 
-    private String getMessage() throws IOException, ClassNotFoundException {
+    private String getMessage() throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(100000);
-//        long t1 = System.currentTimeMillis();
-        socketChannel.read(byteBuffer);
-//        int con = socketChannel.read(byteBuffer);
+        long t1 = System.currentTimeMillis();
+        int com = socketChannel.read(byteBuffer);
+        if (com == -1){
+            throw new IOException();
+        }
+        while (com == 0){
+            if (System.currentTimeMillis() - t1 > 2000){
+                throw new IOException();
+            }
+            com = socketChannel.read(byteBuffer);
+        }
 //        System.out.println(con);
 //        while (con != -1){
 //            con = socketChannel.read(byteBuffer);
@@ -144,36 +161,6 @@ class ClientOperator {
         return str;
     }
     
-//    public Object read(){
-//        try {
-//
-//            inBuf.clear();
-//
-//            while (true) {
-//                int count = selector.select(100);
-//                if (count == 0) break;
-//                Set keys = selector.selectedKeys();
-//                Iterator it = keys.iterator();
-//                while (it.hasNext()) {
-//                    SelectionKey key = (SelectionKey) it.next();
-//                    SocketChannel chn = (SocketChannel) key.channel();
-//                    chn.read(inBuf);
-//                    it.remove();
-//                }
-//            }
-//            if (inputStream == null) {
-//                inputStream = new ByteArrayInputStream(inBuf.array());
-//                in = new ObjectInputStream(inputStream);
-//            } else
-//                inputStream.reset();
-//
-//            return in.readObject();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
     private void makeMessage(String inputString) throws IOException{
         String command = inputString.split(" ", 2)[0];
         switch (command){
@@ -200,24 +187,19 @@ class ClientOperator {
 
     }
 
-    private void resend(String message) throws IOException, ClassNotFoundException {
+    private void resend(String message) throws IOException {
         socketChannel = SocketChannel.open(new InetSocketAddress("localhost", port));
+        getMessage();
+        sendObject("enter");
+        getMessage();
+        sendObject(login);
+        getMessage();
+        sendObject(password);
+        getMessage();
         sendObject(message.split(" ", 2)[0]);
         makeMessage(message);
     }
-
-    /*private void sendMessage(String msg) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        objectOutputStream = new ObjectOutputStream(bos);
-        objectOutputStream.writeObject(msg);
-        objectOutputStream.flush();
-        socketChannel.write(ByteBuffer.wrap(bos.toByteArray()));
-        System.out.println("writing:" + msg);
-        byte[] b = msg.getBytes();
-        socketChannel.write(ByteBuffer.wrap(b));
-            objectOutputStream.writeUTF(msg);
-            objectOutputStream.flush();
-    }*/
+    
     private void sendObject(Object object) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         out = new ObjectOutputStream(bos);
