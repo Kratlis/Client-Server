@@ -62,7 +62,7 @@ class ClientOperator {
                 String message = getMessage();
                 System.out.println(message);
                 Scanner scanner =  new Scanner(System.in);
-                if (message.equals("Введите \"enter\", чтобы подключиться к базе данных. \n" +
+                if (message.equals("Введите \"enter\", чтобы войти. \n" +
                         "Если вы еще не зарегистрированы, введите \"reg\"") ||  message.equals("Введите адрес электронной почты")
                 || message.equals("Пароль был отправлен Вам на почту. Введите его.") || message.equals("Пароли не совпадают. Попробуйте ещё раз ввести пароль.")){
                     sendObject(scanner.next());
@@ -189,6 +189,9 @@ class ClientOperator {
 
     private void resend(String message) throws IOException {
         socketChannel = SocketChannel.open(new InetSocketAddress("localhost", port));
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {}
         getMessage();
         sendObject("enter");
         getMessage();
@@ -196,6 +199,9 @@ class ClientOperator {
         getMessage();
         sendObject(password);
         getMessage();
+        getMessage();
+        sendObject(login);
+        sendObject(password);
         sendObject(message.split(" ", 2)[0]);
         makeMessage(message);
     }
